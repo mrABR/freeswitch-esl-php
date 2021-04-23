@@ -167,6 +167,66 @@ class FreeswitchESL
     }
 
     /**
+     * Execute a command in a syncronous way
+     *
+     * @param string $uuid
+     * @param string $app
+     * @param string $args
+     * @return bool
+     */
+    public function execute(string $uuid, string $app, string $args): bool
+    {
+        $str = "sendmsg " . $uuid . "\ncall-command: execute\nexecute-app-name: " . $app . "\nexecute-app-arg: " . $args . "\n\n";
+        echo $this->sendmsg($str);
+        $response = $this->recvEvent("common");
+        return $response;
+    }
+
+    /**
+     * Execute a command in a asyncronous way
+     *
+     * @param string $uuid
+     * @param string $app
+     * @param string $args
+     * @return bool
+     */
+    public function executeAsync(string $uuid, string $app, string $args): bool
+    {
+        $str = "sendmsg " . $uuid . "\ncall-command: executeAsync\nexecute-app-name: " . $app . "\nexecute-app-arg: " . $args . "\n\n";
+        return $this->sendmsg($str);
+    }
+
+    /**
+     * Send a message 
+     *
+     * @param string $uuid
+     * @return bool
+     */
+    private function sendmsg(string $uuid): bool
+    {
+        if ($this->socket) {
+            socket_write($this->socket, "sendmsg " . $uuid . "\r\n\r\n");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Lists events
+     *
+     * @param string $args
+     * @return bool
+     */
+    public function events(string $args): bool
+    {
+        if ($this->socket) {
+            socket_write($this->socket, "event xml " . $args . "\r\n\r\n");
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Closes the socket connection
      *
      * @return void
